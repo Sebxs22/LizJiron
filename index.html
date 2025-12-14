@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liz Jiron</title>
+    <title>Liz Jiron | Perfil & Citas</title>
     
-    <!-- Favicon Actualizado -->
     <link rel="icon" href="https://img1.picmix.com/output/stamp/normal/6/1/7/7/2607716_11374.png" type="image/png">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Fuentes Cutes: Nunito (Redonda) y Pacifico (Cursiva) -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          // ✅ TU PUBLIC KEY REAL CONFIGURADA
+          emailjs.init("QyI0vLdMNbtnSk0MG");
+       })();
+    </script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
     
     <script>
@@ -28,6 +31,7 @@
                         'cute-pink': '#FFE4E6',
                         'deep-rose': '#FB7185',
                         'soft-white': '#FFFDFD',
+                        'text-primary': '#475569',
                     },
                     fontFamily: {
                         sans: ['Nunito', 'sans-serif'],
@@ -35,7 +39,10 @@
                     },
                     boxShadow: {
                         'soft': '0 10px 40px -10px rgba(251, 113, 133, 0.2)',
-                        'card': '0 4px 6px -1px rgba(255, 255, 255, 0.5), 0 2px 4px -1px rgba(255, 255, 255, 0.3)',
+                        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
                     }
                 }
             }
@@ -62,14 +69,18 @@
             animation: float 4s ease-in-out infinite;
         }
 
-        /* Clase para justificar texto con última línea centrada (Estilo editorial) */
         .text-justify-center {
             text-align: justify;
             text-align-last: center;
         }
         
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* Inputs personalizados */
+        .cute-input {
+            transition: all 0.3s ease;
+        }
+        .cute-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(251, 113, 133, 0.15);
         }
     </style>
 </head>
@@ -79,20 +90,54 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- ICONOS CUTE ---
+        // --- NÚMERO DE WHATSAPP DE LIZ (Configuración General) ---
+        const LIZ_PHONE_NUMBER = "15557794879"; 
+
+        // --- ICONOS ---
         const Icon = ({ name, size = 20, className = "" }) => {
             const icons = {
                 heart: <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />,
                 star: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />,
-                mapPin: <g><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></g>,
                 instagram: <g><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></g>,
                 tiktok: <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />,
                 whatsapp: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />,
-                mail: <g><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></g>,
-                sparkles: <g><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M9 5H5" /></g>,
                 facebook: <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />,
                 x: <g><path d="M4 4l11.733 16h4.267l-11.733 -16z" /><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" /></g>,
-                telegram: <g><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></g>
+                telegram: <g><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></g>,
+                sparkles: <g><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M9 5H5" /></g>,
+                user: (
+                <g>
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </g>
+                ),
+                calendar: (
+                <g>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </g>
+                ),
+                clock: (
+                <g>
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </g>
+                ),
+                mail: (
+                <g>
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                </g>
+                ),
+                globe: (
+                <g>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </g>
+                )
             };
 
             return (
@@ -102,8 +147,7 @@
             );
         };
 
-        // --- COMPONENTES UI ---
-
+        // --- COMPONENTES UI REUTILIZABLES ---
         const SocialButton = ({ icon, color, label, url }) => (
             <a href={url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 group">
                 <button className={`flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300 group`}>
@@ -114,9 +158,7 @@
         );
 
         const Polaroid = ({ src, caption, rotation }) => (
-            <div 
-                className={`bg-white p-3 pb-8 shadow-md rounded-sm transform hover:scale-105 hover:z-10 transition-all duration-300 ${rotation}`}
-            >
+            <div className={`bg-white p-3 pb-8 shadow-md rounded-sm transform hover:scale-105 hover:z-10 transition-all duration-300 ${rotation}`}>
                 <div className="aspect-[3/4] overflow-hidden rounded-sm bg-gray-100">
                     <img src={src} alt={caption} className="w-full h-full object-cover" />
                 </div>
@@ -124,7 +166,8 @@
             </div>
         );
 
-        const App = () => {
+        // --- VISTA: PERFIL ---
+        const ProfileView = () => {
             const galleryPhotos = [
                 { src: "images/Banner/482011417_1172050724572623_5685403752713631355_n.jpg", caption: "Sweet", rot: "-rotate-2" },
                 { src: "images/Banner/Liz-Web-1-225x300.webp", caption: "Dreamy", rot: "rotate-3" },
@@ -133,123 +176,368 @@
             ];
 
             return (
+                <div className="animate-fade-in">
+                    {/* Bio */}
+                    <p className="text-sm text-slate-600 mb-8 leading-relaxed font-semibold text-justify-center px-2">
+                        Más que una simple creadora: soy tu puerta privada a una experiencia erótica sin censura. No solo contenido explícito, sino mi atención plena y exclusiva: sexting intenso, audios que te erizan la piel, videos y fotos hechos solo para ti, conversaciones profundas donde exploramos tus deseos más íntimos. Dominante, sumisa o traviesa… me adapto a lo que te enciende. Suscríbete y descubre un placer elegante, adictivo y completamente personalizado. ¿Estás listo para rendirte? 😈💋
+                    </p>
+
+                    {/* Redes Sociales */}
+                    <div className="grid grid-cols-3 gap-x-6 gap-y-6 mb-10 w-full px-4 justify-items-center">
+                        <SocialButton icon="facebook" color="text-blue-600" label="Facebook" url="https://www.facebook.com/Liz.jiron08" />
+                        <SocialButton icon="instagram" color="text-pink-500" label="Instagram" url="https://www.instagram.com/la.liz_jiron/#" />
+                        <SocialButton icon="whatsapp" color="text-green-500" label="WhatsApp" url={`https://api.whatsapp.com/send/?phone=${LIZ_PHONE_NUMBER}`} />
+                        <SocialButton icon="x" color="text-slate-800" label="Twitter/X" url="https://x.com/Liz_Jiron22" />
+                        <SocialButton icon="tiktok" color="text-black" label="TikTok" url="https://www.tiktok.com/@liz.jiron" />
+                        <SocialButton icon="telegram" color="text-sky-500" label="Telegram" url="https://t.me/+FQFG59r5SrVhZGUx" />
+                    </div>
+
+                    {/* Highlights */}
+                    <div className="w-full">
+                        <div className="flex items-center gap-2 mb-6 justify-center">
+                            <Icon name="heart" className="text-rose-400 fill-rose-200" size={16} />
+                            <h2 className="font-cursive text-2xl text-slate-700">Highlights</h2>
+                            <Icon name="heart" className="text-rose-400 fill-rose-200" size={16} />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 px-2">
+                            {galleryPhotos.map((photo, i) => (
+                                <Polaroid key={i} src={photo.src} caption={photo.caption} rotation={photo.rot} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- VISTA: AGENDAR CITA (CORREGIDA FINAL) ---
+        const BookingView = () => {
+            const [formData, setFormData] = useState({
+                name: '',
+                email: '',
+                phone: '',
+                countryCode: '+593', 
+                date: '',
+                time: '',
+                details: ''
+            });
+            const [history, setHistory] = useState([]);
+            const [loading, setLoading] = useState(false);
+            
+            // Lista de Países (Solo Código y Bandera)
+            const countries = [
+                { code: '+593', flag: '🇪🇨' },
+                { code: '+1', flag: '🇺🇸' },
+                { code: '+52', flag: '🇲🇽' },
+                { code: '+57', flag: '🇨🇴' },
+                { code: '+51', flag: '🇵🇪' },
+                { code: '+54', flag: '🇦🇷' },
+                { code: '+34', flag: '🇪🇸' },
+                { code: '+56', flag: '🇨🇱' }
+            ];
+
+            useEffect(() => {
+                const saved = localStorage.getItem('liz_appointments');
+                if (saved) setHistory(JSON.parse(saved));
+            }, []);
+
+            const handleInputChange = (e) => {
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                
+                if (!formData.name || !formData.email || !formData.date || !formData.time || !formData.phone) {
+                    alert("Por favor completa todos los campos.");
+                    return;
+                }
+
+                setLoading(true);
+
+                // 1. Unimos el código del país y el teléfono tal cual están
+                const rawString = formData.countryCode + formData.phone;
+
+                // 2. LIMPIEZA TOTAL: Esta línea borra el "+", espacios y símbolos. Solo deja números.
+                const cleanPhone = rawString.replace(/\D/g, ''); 
+                // Ejemplo: convierte "+593 981..." en "593981..."
+
+                const templateParams = {
+                    from_name: formData.name,
+                    user_email: formData.email,
+                    phone_number: cleanPhone, // ¡AQUÍ enviamos el número limpio!
+                    date: formData.date,
+                    time: formData.time,
+                    message: formData.details
+                };
+
+                // Enviamos a EmailJS
+                emailjs.send('service_akrjwbr', 'template_v4pvxhu', templateParams)
+                    .then((response) => {
+                        console.log('SUCCESS!', response.status, response.text);
+                        
+                        // Para el historial local guardamos el bonito con símbolos
+                        const newAppointment = { 
+                            ...formData, 
+                            fullPhone: rawString, 
+                            id: Date.now(), 
+                            status: 'Enviada' 
+                        };
+                        const newHistory = [newAppointment, ...history];
+                        setHistory(newHistory);
+                        localStorage.setItem('liz_appointments', JSON.stringify(newHistory));
+
+                        setFormData({ name: '', email: '', phone: '', countryCode: '+593', date: '', time: '', details: '' });
+                        
+                        alert("✨ ¡Solicitud enviada! 💖\n\nLiz ha recibido tu propuesta. Si la fecha está disponible, te escribirá al WhatsApp para confirmar.");
+                    }, (err) => {
+                        console.log('FAILED...', err);
+                        alert("Hubo un error al enviar. Por favor intenta de nuevo.");
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            };
+
+            return (
+                <div className="px-2 animate-fade-in pb-10">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border border-pink-100 mb-8 relative overflow-hidden shadow-lg">
+                        
+                        <div className="absolute -right-4 -top-4 text-pink-100 opacity-50 rotate-12 pointer-events-none">
+                            <Icon name="heart" size={120} className="fill-current" />
+                        </div>
+
+                        <h3 className="font-cursive text-2xl text-rose-500 mb-2 text-center">Reserva tu momento</h3>
+                        <p className="text-xs text-center text-slate-500 mb-2 px-4">
+                            Selecciona tu país y completa los datos.
+                        </p>
+                        
+                        {/* AVISO DINÁMICO DE SERVICIO */}
+                        <div className={`mb-6 p-2 rounded-lg text-center text-xs font-bold border ${formData.countryCode === '+593' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-purple-50 text-purple-600 border-purple-200'}`}>
+                            {formData.countryCode === '+593' ? (
+                                <span>📍 Ecuador: Disponible Presencial y Virtual</span>
+                            ) : (
+                                <span>🌍 Internacional: Solo Contenido / Sexting</span>
+                            )}
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+                            {/* Nombre y Email */}
+                            <div className="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase">Tu Nombre</label>
+                                    <input 
+                                        type="text" name="name" value={formData.name} onChange={handleInputChange}
+                                        className="cute-input w-full bg-pink-50/50 border border-pink-100 rounded-xl px-3 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300"
+                                        placeholder="Tu nombre"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase">Tu Email (Para avisos)</label>
+                                    <div className="flex items-center relative">
+                                        <div className="absolute left-3 text-rose-300">
+                                            <Icon name="mail" size={14} />
+                                        </div>
+                                        <input 
+                                            type="email" name="email" value={formData.email} onChange={handleInputChange}
+                                            className="cute-input w-full bg-pink-50/50 border border-pink-100 rounded-xl pl-9 pr-3 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300"
+                                            placeholder="correo@ejemplo.com"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SELECTOR DE PAÍS Y TELÉFONO JUNTOS */}
+                            <div>
+                                <label className="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase">Tu WhatsApp</label>
+                                <div className="flex gap-2">
+                                    <select 
+                                        name="countryCode" 
+                                        value={formData.countryCode} 
+                                        onChange={handleInputChange}
+                                        className="cute-input bg-pink-50/50 border border-pink-100 rounded-xl px-2 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300 w-32"
+                                    >
+                                        {countries.map((c) => (
+                                            <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                                        ))}
+                                    </select>
+                                    <input 
+                                        type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
+                                        className="cute-input flex-1 bg-pink-50/50 border border-pink-100 rounded-xl px-3 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300"
+                                        placeholder="Número"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Fecha y Hora */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase">Fecha</label>
+                                    <input 
+                                        type="date" name="date" value={formData.date} onChange={handleInputChange}
+                                        className="cute-input w-full bg-pink-50/50 border border-pink-100 rounded-xl px-3 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase">Hora</label>
+                                    <input 
+                                        type="time" name="time" value={formData.time} onChange={handleInputChange}
+                                        className="cute-input w-full bg-pink-50/50 border border-pink-100 rounded-xl px-3 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Aviso de disponibilidad */}
+                            <p className="text-[10px] text-center text-slate-400 italic">
+                                * La disponibilidad de la hora seleccionada será confirmada por Liz.
+                            </p>
+
+                            {/* Detalles */}
+                            <div>
+                                <label className="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase">Tus Deseos</label>
+                                <textarea 
+                                    name="details" value={formData.details} onChange={handleInputChange} rows="2"
+                                    className="cute-input w-full bg-pink-50/50 border border-pink-100 rounded-xl px-3 py-2 text-slate-700 text-sm focus:outline-none focus:border-rose-300 resize-none"
+                                    placeholder="Cuéntame qué buscas..."
+                                ></textarea>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                disabled={loading}
+                                className={`w-full py-3 rounded-xl shadow-lg transform transition-all flex items-center justify-center gap-2 font-bold text-white
+                                    ${loading ? 'bg-slate-300 cursor-not-allowed' : 'bg-gradient-to-r from-rose-400 to-pink-500 hover:shadow-pink-300 hover:-translate-y-1'}
+                                `}
+                            >
+                                {loading ? (
+                                    <span>Enviando...</span>
+                                ) : (
+                                    <>
+                                        <Icon name="sparkles" size={18} /> Solicitar Cita
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Historial Visual */}
+                    {history.length > 0 && (
+                        <div>
+                             <div className="flex items-center gap-2 mb-4 justify-center">
+                                <Icon name="clock" className="text-slate-400" size={14} />
+                                <h4 className="font-bold text-slate-400 text-xs uppercase tracking-wide">Tus Solicitudes</h4>
+                            </div>
+                            <div className="space-y-3">
+                                {history.map((item) => (
+                                    <div key={item.id} className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-2">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-slate-700 text-sm">{item.date}</span>
+                                                    <span className="text-xs text-slate-400">@ {item.time}</span>
+                                                </div>
+                                                <p className="text-[10px] text-slate-500 mt-1 truncate w-40">{item.details}</p>
+                                            </div>
+                                            {/* ✅ BADGE SIEMPRE VERDE Y "ENVIADA" */}
+                                            <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase border bg-green-50 text-green-600 border-green-100">
+                                                Enviada
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- APP PRINCIPAL ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('profile');
+
+            return (
                 <div className="min-h-screen flex items-center justify-center p-4 md:p-8 relative">
                     
                     {/* Contenedor Principal */}
-                    <main className="w-full max-w-lg bg-soft-white rounded-[40px] shadow-soft overflow-hidden border-4 border-white relative z-10">
+                    <main className="w-full max-w-lg bg-soft-white rounded-[40px] shadow-soft overflow-hidden border-4 border-white relative z-10 min-h-[800px]">
                         
                         {/* Decoración Superior */}
                         <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-pink-100 to-white -z-0 rounded-t-[36px]"></div>
                         
                         {/* Decoración Flotante */}
-                        <div className="absolute top-4 right-4 animate-float">
+                        <div className="absolute top-4 right-4 animate-float z-20">
                             <Icon name="sparkles" className="text-yellow-400 fill-yellow-200" size={32} />
                         </div>
 
-                        <div className="relative z-10 px-6 pt-12 pb-8 flex flex-col items-center">
+                        <div className="relative z-10 pt-10 pb-8 flex flex-col items-center">
                             
-                            {/* Foto de Perfil */}
-                            <div className="relative mb-4 group">
-                                <div className="absolute inset-0 bg-gradient-to-tr from-pink-300 to-purple-200 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity"></div>
-                                <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden relative">
-                                    <img 
-                                        src="images/Perfil/497690640_1221164546327907_5126734573698128904_n.jpg" 
-                                        alt="Profile" 
-                                        className="w-full h-full object-cover"
-                                    />
+                            {/* Cabecera Estática: Foto y Nombre */}
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="relative mb-3 group cursor-pointer" onClick={() => setActiveTab('profile')}>
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-pink-300 to-purple-200 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg overflow-hidden relative">
+                                        <img 
+                                            src="images/Perfil/497690640_1221164546327907_5126734573698128904_n.jpg" 
+                                            alt="Profile" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    {/* Hello Kitty Chibi */}
+                                    <div className="absolute -bottom-1 -right-3 w-10 h-10 drop-shadow-md animate-float">
+                                        <img 
+                                            src="https://i.pinimg.com/736x/a2/73/98/a27398f65171f493f333783557cf812a.jpg" 
+                                            alt="Hello Kitty" 
+                                            className="w-full h-full object-cover rounded-full border-2 border-white bg-white" 
+                                        />
+                                    </div>
                                 </div>
-                                {/* Hello Kitty Chibi */}
-                                <div className="absolute -bottom-2 -right-4 w-14 h-14 drop-shadow-md animate-float">
-                                    <img 
-                                        src="https://i.pinimg.com/736x/a2/73/98/a27398f65171f493f333783557cf812a.jpg" 
-                                        alt="Hello Kitty" 
-                                        className="w-full h-full object-cover rounded-full border-2 border-white bg-white" 
-                                    />
-                                </div>
-                            </div>
 
-                            {/* Nombre y Título */}
-                            <h1 className="font-cursive text-4xl text-rose-500 mb-1">Liz Jiron</h1>
-                            <div className="bg-pink-50 text-rose-400 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-pink-100">
-                                Modelo & Lifestyle
-                            </div>
-
-                            {/* Ubicación (Puntito Verde) */}
-                            <div className="flex items-center gap-2 text-slate-500 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-50 mb-8">
-                                <span className="relative flex h-3 w-3">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                                </span>
-                                <span className="text-sm">Actualmente en <span className="font-bold">Riobamba, Ecuador</span></span>
-                            </div>
-
-                            {/* Bio Personalizada y Justificada */}
-                            <p className="text-sm text-slate-600 mb-8 leading-relaxed font-semibold text-justify-center px-2">
-                                Más que una simple creadora: soy tu puerta privada a una experiencia erótica sin censura. No solo contenido explícito, sino mi atención plena y exclusiva: sexting intenso, audios que te erizan la piel, videos y fotos hechos solo para ti, conversaciones profundas donde exploramos tus deseos más íntimos. Dominante, sumisa o traviesa… me adapto a lo que te enciende. Suscríbete y descubre un placer elegante, adictivo y completamente personalizado. ¿Estás listo para rendirte? 😈💋
-                            </p>
-
-                            {/* Botones de Redes Sociales */}
-                            <div className="grid grid-cols-3 gap-x-6 gap-y-6 mb-10 w-full px-4 justify-items-center">
-                                <SocialButton 
-                                    icon="facebook" 
-                                    color="text-blue-600" 
-                                    label="Facebook" 
-                                    url="https://www.facebook.com/Liz.jiron08"
-                                />
-                                <SocialButton 
-                                    icon="instagram" 
-                                    color="text-pink-500" 
-                                    label="Instagram" 
-                                    url="https://www.instagram.com/la.liz_jiron/#"
-                                />
-                                <SocialButton 
-                                    icon="whatsapp" 
-                                    color="text-green-500" 
-                                    label="WhatsApp" 
-                                    url="https://api.whatsapp.com/send/?phone=15557794879&text&type=phone_number&app_absent=0"
-                                />
-                                <SocialButton 
-                                    icon="x" 
-                                    color="text-slate-800" 
-                                    label="Twitter/X" 
-                                    url="https://x.com/Liz_Jiron22"
-                                />
-                                <SocialButton 
-                                    icon="tiktok" 
-                                    color="text-black" 
-                                    label="TikTok" 
-                                    url="https://www.tiktok.com/@liz.jiron"
-                                />
-                                <SocialButton 
-                                    icon="telegram" 
-                                    color="text-sky-500" 
-                                    label="Telegram" 
-                                    url="https://t.me/+FQFG59r5SrVhZGUx"
-                                />
-                            </div>
-
-                            {/* Sección "Mis Fotos" */}
-                            <div className="w-full">
-                                <div className="flex items-center gap-2 mb-6 justify-center">
-                                    <Icon name="heart" className="text-rose-400 fill-rose-200" size={16} />
-                                    <h2 className="font-cursive text-2xl text-slate-700">Highlights</h2>
-                                    <Icon name="heart" className="text-rose-400 fill-rose-200" size={16} />
-                                </div>
+                                <h1 className="font-cursive text-3xl text-rose-500 mb-1">Liz Jiron</h1>
                                 
-                                <div className="grid grid-cols-2 gap-4 px-2">
-                                    {galleryPhotos.map((photo, i) => (
-                                        <Polaroid key={i} src={photo.src} caption={photo.caption} rotation={photo.rot} />
-                                    ))}
+                                <div className="flex items-center gap-1 text-slate-400 text-xs mt-1 bg-white/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                                    <span className="relative flex h-2 w-2">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                    </span>
+                                    <span>Riobamba, Ecuador</span>
                                 </div>
                             </div>
-                            
-                            <div className="mb-4"></div>
+
+                            {/* --- MENÚ DE NAVEGACIÓN --- */}
+                            <div className="flex p-1 bg-pink-50 rounded-2xl w-3/4 mx-auto mb-8 shadow-inner relative">
+                                <button 
+                                    onClick={() => setActiveTab('profile')}
+                                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+                                        activeTab === 'profile' 
+                                        ? 'bg-white text-rose-500 shadow-sm' 
+                                        : 'text-slate-400 hover:text-rose-400'
+                                    }`}
+                                >
+                                    <Icon name="user" size={16} /> Perfil
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('booking')}
+                                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+                                        activeTab === 'booking' 
+                                        ? 'bg-white text-rose-500 shadow-sm' 
+                                        : 'text-slate-400 hover:text-rose-400'
+                                    }`}
+                                >
+                                    <Icon name="calendar" size={16} /> Citas
+                                </button>
+                            </div>
+
+                            {/* --- CONTENIDO DINÁMICO --- */}
+                            <div className="w-full transition-opacity duration-500">
+                                {activeTab === 'profile' ? <ProfileView /> : <BookingView />}
+                            </div>
 
                         </div>
 
                         {/* Footer */}
-                        <div className="text-center pb-6 pt-2">
-                            <p className="text-xs text-rose-300 font-bold">hecho con amor en ambato ♡</p>
+                        <div className="text-center pb-6 pt-4 border-t border-pink-50 mt-4">
+                            <p className="text-[10px] text-rose-300 font-bold uppercase tracking-widest">hecho con amor en ambato ♡</p>
                         </div>
                     </main>
                 </div>
